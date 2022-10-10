@@ -1,24 +1,10 @@
-# README
+# Checks
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1. ColumnPresenceChecker
+2. NullConstraintChecker
+3. BelongsToPresenceChecker
+4. MissingUniqueIndexChecker
+5. MissingIndexChecker
+6. LengthConstraintChecker
+7. PrimaryKeyTypeChecker
+8. ForeignKeyTypeChecker
