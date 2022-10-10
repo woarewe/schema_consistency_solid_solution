@@ -29,6 +29,7 @@ class UserEntity
 
     def validate_email!(email)
       raise InvalidEmailError, "email can not be blank" if email.blank?
+      raise InvalidEmailError, "email has invalid format" unless URI::MailTo::EMAIL_REGEXP.match?(email)
     end
   end
 end
