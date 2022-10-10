@@ -1,27 +1,32 @@
 class UsersController < ApplicationController
-  def index
-    users = User.all
+  UnprocessableEntityError = Class.new(StandardError)
 
-    render json: users.as_json
+  def index
+    users = UserRepository.all
+
+    render json: users.map(&method(:serialize))
   end
 
   def create
-    user = User.new(user_params)
-
-    if user.save
-      render json: user.as_json, status: :ok
-    else
-      render json: { errors: user.errors.as_json }
+    handle_bad_request do
+      user = handle_validate_errors do
+        UserEntity.build!(**user_params)
+      end
+      UserRepository.persist!(user)
     end
   end
 
   def update
-    user = User.find(params[:id])
+    user = UserRepository.find!(params[:id])
 
-    if user.update(user_params)
-      render json: user.as_json, status: :ok
-    else
-      render json: { errors: user.errors.as_json }
+    handle_bad_request do
+      user = handle_validate_errors do
+        user = UserEntity.build!(
+          id: user.id,
+          **user_params
+        )
+      end
+      UserRepository.persist!(user)
     end
   end
 
@@ -29,5 +34,26 @@ class UsersController < ApplicationController
 
   def user_params
     params.permit(:name, :email)
+  end
+
+  def serialize(user)
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email
+    }
+  end
+
+  def handle_validate_errors
+    yield
+  rescue UserEntity::Error => error
+    raise UnprocessableEntityError, error.message
+  end
+
+  def handle_bad_request
+    user = yield
+    render json: serialize(user)
+  rescue UnprocessableEntityError => error
+    render json: { error: error.message }, status: :unprocessable_entity
   end
 end
